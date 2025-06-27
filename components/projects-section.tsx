@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Github, Calendar, Database, Globe, Code, Smartphone } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const projects = [
   {
@@ -73,16 +73,66 @@ const categories = ["All", "Full Stack", "Frontend", "Other"];
 
 export function ProjectsSection() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isVisible, setIsVisible] = useState(false);
+  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const filteredProjects = selectedCategory === "All" 
     ? projects 
     : projects.filter(project => project.category === selectedCategory);
 
+  useEffect(() => {
+    // Section visibility observer
+    const sectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      sectionObserver.observe(sectionRef.current);
+    }
+
+    // Card visibility observer
+    const cardObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-index') || '0');
+            setVisibleCards(prev => new Set([...Array.from(prev), index]));
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    cardRefs.current.forEach((ref) => {
+      if (ref) cardObserver.observe(ref);
+    });
+
+    return () => {
+      if (sectionRef.current) {
+        sectionObserver.unobserve(sectionRef.current);
+      }
+      cardRefs.current.forEach((ref) => {
+        if (ref) cardObserver.unobserve(ref);
+      });
+    };
+  }, [filteredProjects]);
+
   return (
-    <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8">
+    <section 
+      ref={sectionRef}
+      id="projects" 
+      className="py-20 px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : 'opacity-0'}`}>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Featured Projects
           </h2>
@@ -94,16 +144,16 @@ export function ProjectsSection() {
         </div>
 
         {/* Category Filter */}
-        <div className="flex justify-center mb-12">
+        <div className={`flex justify-center mb-12 ${isVisible ? 'fade-in-up stagger-2' : 'opacity-0'}`}>
           <div className="flex gap-2 p-1 bg-muted rounded-lg">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
                   selectedCategory === category
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background"
+                    ? "bg-primary text-primary-foreground shadow-sm transform scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background hover:scale-105"
                 }`}
               >
                 {category}
@@ -116,75 +166,98 @@ export function ProjectsSection() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project, index) => {
             const Icon = project.icon;
+            const isCardVisible = visibleCards.has(index);
+            
             return (
-              <Card key={index} className="card-hover group overflow-hidden">
-                {/* Project Image */}
-                <div className="aspect-video overflow-hidden bg-muted relative">
-                  <Image 
-                    src={project.image} 
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <div className="bg-background/80 backdrop-blur-sm rounded-full p-2">
-                      <Icon className="w-4 h-4 text-primary" />
+              <div
+                key={index}
+                ref={(el) => {
+                  cardRefs.current[index] = el;
+                }}
+                data-index={index}
+                className={`transition-all duration-700 ${
+                  isCardVisible ? 'fade-in-up' : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: `${index * 0.1}s` }}
+              >
+                <Card className="card-hover group overflow-hidden h-full gpu-accelerated">
+                  {/* Project Image */}
+                  <div className="aspect-video overflow-hidden bg-muted relative">
+                    <Image 
+                      src={project.image} 
+                      alt={project.title}
+                      width={400}
+                      height={300}
+                      className="w-full h-full object-cover smooth-image group-hover:scale-110 transition-transform duration-500 ease-out"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-4 left-4 transition-all duration-300 group-hover:scale-110">
+                      <div className="bg-background/90 backdrop-blur-sm rounded-full p-2 shadow-md">
+                        <Icon className="w-4 h-4 text-primary" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
-                      {project.category}
-                    </Badge>
-                  </div>
-                </div>
-
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">{project.title}</CardTitle>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      {project.date}
-                    </div>
-                  </div>
-                  <CardDescription className="leading-relaxed">
-                    {project.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Technologies */}
-                  <div className="flex flex-wrap gap-1">
-                    {project.technologies.map((tech, techIndex) => (
-                      <Badge 
-                        key={techIndex} 
-                        variant="outline" 
-                        className="text-xs hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                      >
-                        {tech}
+                    <div className="absolute top-4 right-4 transition-all duration-300 group-hover:scale-110">
+                      <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm shadow-md">
+                        {project.category}
                       </Badge>
-                    ))}
+                    </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      asChild
-                    >
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                        <Github className="w-4 h-4" />
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl transition-colors duration-300 group-hover:text-primary">{project.title}</CardTitle>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        {project.date}
+                      </div>
+                    </div>
+                    <CardDescription className="leading-relaxed">
+                      {project.description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    {/* Technologies */}
+                    <div className="flex flex-wrap gap-1">
+                      {project.technologies.map((tech, techIndex) => (
+                        <Badge 
+                          key={techIndex} 
+                          variant="outline" 
+                          className="text-xs hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 hover:scale-105"
+                        >
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="transition-all duration-300 hover:scale-105 gpu-accelerated"
+                        asChild
+                      >
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                          <Github className="w-4 h-4" />
+                        </a>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             );
           })}
         </div>
 
         {/* View More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" asChild>
+        <div className={`text-center mt-12 ${isVisible ? 'fade-in-up stagger-4' : 'opacity-0'}`}>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="transition-all duration-300 hover:scale-105 gpu-accelerated"
+            asChild
+          >
             <a href="https://github.com/isrivarshini" target="_blank" rel="noopener noreferrer">
               <Github className="w-4 h-4 mr-2" />
               View All Projects on GitHub

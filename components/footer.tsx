@@ -31,7 +31,7 @@ export function Footer() {
               Sri Varshini
             </h3>
             <p className="text-muted-foreground">
-              Full Stack Developer & Software Engineer
+              Software Engineer & Mobile Application Developer
             </p>
           </div>
 
