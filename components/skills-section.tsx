@@ -15,26 +15,47 @@ export function SkillsSection() {
   };
 
   const workExperience = [
-    {
-      title: "Mobile Application Developer",
-      company: "The University of Georgia",
-      date: "January 2024 - May 2025",
-      responsibilities: [
-        "Led end-to-end development of HomePro, an Android app for real-time home service booking with provider discovery and order tracking",
-        "Integrated Firebase Auth, Realtime DB, and Storage to enable OTP-based login, secure profile creation, and efficient data handling.",
-        "Resolved 90% of beta bugs and implemented modular UI with Java/XML, ensuring app stability and fast release through Agile sprints.",],
-    },
-    {
-      title: "Data Analyst",
-      company: "Perfect Infra",
-      date: "January 2022 - May 2023",
-      responsibilities: [
-        "Conducted 10+ construction project reviews using quantitative and qualitative methods to identify efficiency gaps and safety risks.",
-        "Built interactive Power BI dashboards with DAX metrics (CPI, SPI, cost variance) to support clear stakeholder reporting.",
-        "Optimized SQL stored procedures and views for high-volume data analysis, enabling accurate forecasting and financial reporting.",
-      ],
-    },
-  ];
+  {
+    title: "Full Stack Developer",
+    company: "ABE Scott Enterprises",
+    date: "November 2025 - Present",
+    responsibilities: [
+      "Transitioned from web developer to PM role after 1 month, managing 70% development (OAuth, GTFS routing) and 30% PM duties.",
+      "Implemented OAuth 2.0 authentication reducing login failures by 40% and improving user session security.",
+      "Built GTFS-based transit routing system with real-time optimization using Dijkstra's algorithm in Node.js/Express/MySQL.",
+    ],
+  },
+  {
+    title: "Full Stack Developer",
+    company: "Choovio",
+    date: "May 2025 - November 2025",
+    responsibilities: [
+      "Developed React/Next.js frontend modules for IoT fleet management SaaS platform serving enterprise clients.",
+      "Reduced API response times by 98% through performance optimization and resolved critical CORS blocking issues.",
+      "Cut development cycles by 50% through AI tool integration and improved team workflow efficiency.",
+    ],
+  },
+  {
+    title: "Mobile Application Developer",
+    company: "The University of Georgia",
+    date: "August 2023 - May 2025",
+    responsibilities: [
+      "Led end-to-end development of HomePro Android app with Firebase Auth, Realtime DB, and Storage integration.",
+      "Implemented MVVM architecture with Java, achieving 90% bug resolution rate during beta testing phase.",
+      "Delivered modular UI using Java/XML through Agile sprints, ensuring stable releases and scalable codebase.",
+    ],
+  },
+  {
+    title: "Founding Engineer",
+    company: "Pullulate",
+    date: "May 2021 - July 2023",
+    responsibilities: [
+      "Built e-commerce platform with payment gateway integrations and OAuth 2.0 authentication services.",
+      "Designed microservices architecture for scalable distributed systems handling high-traffic scenarios.",
+      "Implemented RESTful APIs with comprehensive error handling and security best practices.",
+    ],
+  },
+];
 
   return (
     <section id="skills" className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
