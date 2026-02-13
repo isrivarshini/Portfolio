@@ -95,8 +95,8 @@ export function HeroSection() {
 
   const downloadResume = () => {
     const link = document.createElement('a');
-    link.href = '/SriVarshini_Resume.pdf';
-    link.download = 'SriVarshini_Resume.pdf';
+    link.href = '/Sri_Varshini_Resume.pdf';
+    link.download = 'Sri_Varshini_Resume.pdf';
     link.click();
   };
 
